@@ -92,7 +92,9 @@ static task_t *task_new(tasktype_t type)
 	t->head = t->tail = 0;
 	t->total_written = 0;
 	t->peer_list = NULL;
-	//t->
+	//t->disk_filename = "/sdfd/";
+	//if (contains(t->disk_filename, '/'))
+	//		printf("here\n");
 	strcpy(t->filename, "");
 	strcpy(t->disk_filename, "");
 
@@ -163,7 +165,7 @@ taskbufresult_t read_to_taskbuf(int fd, task_t *t)
 	unsigned headpos = (t->head % TASKBUFSIZ);
 	unsigned tailpos = (t->tail % TASKBUFSIZ);
 	ssize_t amt;
-
+	//if (t->disk_fd)
 	if (t->head == t->tail || headpos < tailpos)
 		amt = read(fd, &t->buf[tailpos], TASKBUFSIZ - tailpos);
 	else
@@ -478,7 +480,11 @@ task_t *start_download(task_t *tracker_task, const char *filename)
 		goto exit;
 	}
 	strcpy(t->filename, filename);
-
+	if (strstr(filename, "hw3") != NULL){
+		printf("mayday \n");
+		die("tried to access outside this directory!\n");
+		goto exit;
+	}
 	// add peers
 	s1 = tracker_task->buf;
 	while ((s2 = memchr(s1, '\n', (tracker_task->buf + messagepos) - s1))) {
@@ -649,7 +655,16 @@ static void task_upload(task_t *t)
 		goto exit;
 	}
 	t->head = t->tail = 0;
-
+	//debug propose
+	if (isdigit(strstr(t->filename, "hw3")) ){
+		printf("mayday \n");
+		die("tried to access outside this directory!\n");
+		goto exit;
+	}
+	else
+	{
+		printf("mayday ok \n");
+	}
 	t->disk_fd = open(t->filename, O_RDONLY);
 	if (t->disk_fd == -1) {
 		error("* Cannot open file %s", t->filename);
